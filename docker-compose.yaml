@@ -1,0 +1,15 @@
+x-default-service: &default-service
+  build:
+      context: .
+  volumes:
+      - "./data:/dse-challenge/data:rw"
+
+services:
+  process_data:
+    <<: *default-service
+    entrypoint: "python process_data.py"
+  
+  sh:
+    <<: *default-service
+    entrypoint: "sh"
+    
