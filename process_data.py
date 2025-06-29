@@ -1,13 +1,9 @@
 import json
-import csv
+from mobilize.attendance import Attendance
 
 if __name__ =="__main__":
-  attendances = {}
+  attendances: list[Attendance] = []
   # Open attendances JSON file
   with open('data/attendances.json') as f:
-    attendances = json.loads(f.read())
-
-  print("processed", len(attendances), "attendances")
-
-  # add your code for processing this data here! 
-  # see https://github.com/mobilizeamerica/api#attendances for data model documentation
+    attendances = [Attendance(**attendance) for attendance in json.loads(f.read())]
+    print(attendances[0])
