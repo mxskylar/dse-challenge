@@ -7,7 +7,11 @@ x-default-service: &default-service
 services:
   process_data:
     <<: *default-service
-    entrypoint: "python process_data.py"
+    command: "python process_data.py"
+  
+  tests:
+    <<: *default-service
+    command: "pytest"
   
   sh:
     <<: *default-service

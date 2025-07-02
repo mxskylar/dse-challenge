@@ -1,47 +1,51 @@
 import dataclasses
-import json
-import hashlib
 from types import NoneType, UnionType
 from typing import get_args, get_origin
-import uuid
 
-class NestedJsonEncoder(json.JSONEncoder):
+def get_field_with_name(fields, name: str):
     """
-    Custom JSON encoder that returns dictionary of all nested class objects within an object
-    https://docs.python.org/3/library/json.html
+    Get field with a matching name
     """
-    def default(self, obj):
-        # If value has attribute __dict__, it's a class object.
-        # Return dictionary of object values.
-        if hasattr(obj, '__dict__'):
-            return obj.__dict__
-        else:
-            return json.JSONEncoder.default(self, obj)
+    for field in fields:
+        if name == field.name:
+            return field
+    return None
 
-def get_class(data_type):
+class UnsupportedTypeException(Exception):
     """
-    Gets class embedded in data type
+    Raised when a data class's field has a type that is not supported
+    because its specific / atomic type is not determinable
+    (e.g. union types with more than one non-None types)
+    """
+    def __init__(self, field_type, reason: str):
+        self.message = f"Unsupported type '{field_type}': Unable to determine atomic type because {reason}"
+        super().__init__(self.message)
+
+def get_atomic_type(field_type):
+    """
+    Gets the specific / atomic type (e.g. int) embedded in
+    a data class field's overall type (e.g. union type: int | None)
+
+    This supports the types of fields in data classes,
+    NOT the types on individual variables or fields from non-data classes.
 
     Supports data types that are:
-    - A single class
-    - A union of None and a SINGLE class
-    - A list of classes, including lists of lists & lists of supported union types
+    - A single type
+    - A union of None and a SINGLE non-None type
+    - A list of types, including lists of lists and lists of supported union types
     """
-    origin_type = get_origin(data_type)
+    origin_type = get_origin(field_type)
     if origin_type is UnionType:
         # Get types in union that are not None
-        types = list(filter(lambda data_type: data_type is not NoneType, get_args(data_type)))
-        if len(types) > 1:
-            raise Exception(
-                f"Failed find class in type '{data_type}' " +
-                "Union contains more than one non-None type. " +
-                "This is not supported."
-            )
-        return types[0]
+        sub_type = get_args(field_type)
+        non_none_sub_types = list(filter(lambda t: t is not NoneType, sub_type))
+        if len(non_none_sub_types) > 1:
+            raise UnsupportedTypeException(field_type, "union contains more than one non-None type")
+        return non_none_sub_types[0]
     elif origin_type is list:
-        return get_class(origin_type)
-    return data_type
-        
+        sub_type = get_args(field_type)[0]
+        return get_atomic_type(sub_type)
+    return field_type
 
 class ApiObject:
     """
@@ -53,35 +57,10 @@ class ApiObject:
         # Attributes not defined will be ignored, even when returned by the API
         fields = dataclasses.fields(self)
         for k, v in kwargs.items():
-            # Get key with same name as the key for the argument
-            def get_matching_field():
-                for field in fields:
-                    if k == field.name:
-                        return field
-                return None
-            field = get_matching_field()
+            field = get_field_with_name(fields, k)
             if field:
                 value = v
                 if type(v) is dict:
-                    cls = get_class(field.type)
+                    cls = get_atomic_type(field.type)
                     value = cls(**value)
                 setattr(self, k, value)
-    
-    def __get_hash_id__(self) -> str:
-        """
-        Generates a UUID seeded from an MD5 hash of the object's data.
-        MD5 hashes use 128 bits and have a low chance of collision (1 in 2^128).
-
-        Generating UUIDs is necessary because some object's IDs are ommitted
-        due to campaign finance restrictions. From the Mobilize API docs:
-
-        "If the requesting organization is independent and the event's organization is coordinated, id is omitted."
-        https://github.com/mobilizeamerica/api?tab=readme-ov-file#attendance-object
-
-        Additionally, generating UUIDs from a hash of a row's data ensures that
-        duplicate rows can easily be dropped from a Pandas DataFrame
-        while still preserving a unique ID that can still join to another table as expected.
-        """
-        data = json.dumps(self.__dict__, cls=NestedJsonEncoder)
-        hash = hashlib.md5(data.encode()).hexdigest()
-        return uuid.UUID(hash).hex

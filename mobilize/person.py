@@ -16,7 +16,6 @@ class Person(ApiObject):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    ## Set Directly from API Response ##
     id: int
     # Ignoring person_id because it will eventually be deprecated
     user_id: int
@@ -24,8 +23,11 @@ class Person(ApiObject):
     modified_date: int
     given_name: str
     family_name: str
-    #email_addresses: list[Email]
-    #phone_numbers: list[Phone]
-    #postal_addresses: list[Address]
     sms_opt_in_status: SmsOptInStatus
     blocked_date: int
+
+    # Original nested data for timeslots is initially preserved
+    # because it will be decoupled into a separate table
+    #email_addresses: list[Email] = []
+    #phone_numbers: list[Phone] = []
+    #postal_addresses: list[Address] = []
