@@ -1,6 +1,9 @@
 import dataclasses
+import os
+
 from types import NoneType, UnionType
 from typing import get_args, get_origin
+
 
 def get_field_with_name(fields, name: str):
     """
@@ -60,7 +63,11 @@ class ApiObject:
             field = get_field_with_name(fields, k)
             if field:
                 value = v
+                # Cast value to class if the raw value is a dictionary
                 if type(v) is dict:
                     cls = get_atomic_type(field.type)
                     value = cls(**value)
+                # Escape new line characters in strings so that they fit on one line in a CSV file
+                elif type(v) is str:
+                    value = v.replace(os.linesep, "\\n")
                 setattr(self, k, value)

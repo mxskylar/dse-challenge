@@ -7,6 +7,7 @@ from mobilize.organization import Organization
 from mobilize.timeslot import Timeslot
 from mobilize.custom_signup_field_value import CustomSignupFieldValue
 
+
 class AttendanceStatus(Enum):
     REGISTERED = "REGISTERED"
     CANCELLED = "CANCELLED"
@@ -35,7 +36,10 @@ class Attendance(ApiObject):
             event = kwargs["event"]
             if "id" in event:
                 # This ID can join to the events table
-                event_args["event_id"] = event["id"]
+                event_id = event["id"]
+                event_args["event_id"] = event_id
+                if "timeslot" in kwargs and kwargs["timeslot"]:
+                    kwargs["timeslot"]["event_id"] = event_id
             if "event_type" in event:
                 event_args["event_type"] = event["event_type"]
         
@@ -54,7 +58,7 @@ class Attendance(ApiObject):
         # From the API docs on id:
         # "If the requesting organization is independent and the event’s organization is coordinated, this is omitted."
         # https://github.com/mobilizeamerica/api?tab=readme-ov-file#attendance-object
-        # This is verified in tests/test_joins.py:test_attendance_join_custom_signup_field_values
+        # This is verified in tests/test_get_tables.py:test_attendance_join_custom_signup_field_values
         if "custom_signup_field_values" in kwargs and "id" in kwargs:
             values = []
             for value in kwargs["custom_signup_field_values"]:
@@ -62,7 +66,6 @@ class Attendance(ApiObject):
                 values.append({**value, "attendance_id": kwargs["id"]})
             custom_signup_field_value_args = {"custom_signup_field_values": values}
         
-        # Set attributes
         args = {
             **kwargs,
             **referrer_args,
@@ -94,8 +97,8 @@ class Attendance(ApiObject):
     person: Person
     event: Event
     timeslot: Timeslot
-    sponsor: Organization
-    custom_signup_field_values: list[CustomSignupFieldValue]
+    sponsor: Organization | None = None
+    custom_signup_field_values: list[CustomSignupFieldValue] | None = None
 
     # If the requesting organization is independent
     # and the event’s organization is coordinated, the ID omitted.

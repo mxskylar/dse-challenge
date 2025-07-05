@@ -1,12 +1,14 @@
 import dataclasses
-from dataclasses import dataclass
+import pytest
 import json
+
+from dataclasses import dataclass
 from mobilize.api_object import UnsupportedTypeException, get_atomic_type, get_field_with_name
 from mobilize.attendance import Attendance
 from mobilize.event import Event
 from mobilize.person import Person
 from process_data import ATTENDANCES_DATA_FILE
-import pytest
+
 
 def get_attendance():
     with open(ATTENDANCES_DATA_FILE) as f:

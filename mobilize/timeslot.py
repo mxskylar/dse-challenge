@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from mobilize.api_object import ApiObject
 
+
 @dataclass
 class Timeslot(ApiObject):
     """
@@ -11,6 +12,7 @@ class Timeslot(ApiObject):
         super().__init__(**kwargs)
     
     id: int
+    event_id: int
     start_date: int
     end_date: int
     is_full: bool
