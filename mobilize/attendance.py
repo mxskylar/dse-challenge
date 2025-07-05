@@ -6,6 +6,7 @@ from mobilize.event import Event
 from mobilize.organization import Organization
 from mobilize.timeslot import Timeslot
 from mobilize.custom_signup_field_value import CustomSignupFieldValue
+from mobilize.utils import generate_uuid_from_obj
 
 
 class AttendanceStatus(Enum):
@@ -45,8 +46,12 @@ class Attendance(ApiObject):
         
         # Person & Sponsor (nested IDs are normalized so they can join to other tables)
         other_args = {}
-        if "person" in kwargs and kwargs["person"] and "id" in kwargs["person"]:
-            other_args["person_id"] = kwargs["person"]["id"]
+        if "person" in kwargs and kwargs["person"]:
+            # Generating a UUID because, for some reason, neither person.id nor person.user_id are unique in data/attendances.json
+            # This UUID will be identical for identical payloads
+            person_uuid = generate_uuid_from_obj(kwargs["person"])
+            other_args["person_uuid"] = person_uuid
+            kwargs["person"]["uuid"] = person_uuid
         if "sponsor" in kwargs and kwargs["sponsor"] and "id" in kwargs["sponsor"]:
             other_args["sponsor_id"] = kwargs["sponsor"]["id"]
         
@@ -58,7 +63,6 @@ class Attendance(ApiObject):
         # From the API docs on id:
         # "If the requesting organization is independent and the event’s organization is coordinated, this is omitted."
         # https://github.com/mobilizeamerica/api?tab=readme-ov-file#attendance-object
-        # This is verified in tests/test_get_tables.py:test_attendance_join_custom_signup_field_values
         if "custom_signup_field_values" in kwargs and "id" in kwargs:
             values = []
             for value in kwargs["custom_signup_field_values"]:
@@ -80,7 +84,8 @@ class Attendance(ApiObject):
     modified_date: int
     status: AttendanceStatus
     attended: bool
-    person_id: int
+    # Generating a UUID because, for some reason, neither person.id nor person.user_id are unique in data/attendances.json
+    person_uuid: str
     event_type: str
     referrer_utm_source: str	
     referrer_utm_medium: str	

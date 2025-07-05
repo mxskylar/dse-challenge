@@ -53,6 +53,8 @@ class Person(ApiObject):
         }
         super().__init__(**args)
 
+    # Generating a UUID because, for some reason, neither id nor user_id are unique in data/attendances.json
+    uuid: str
     id: int
     # Ignoring person_id because it will eventually be deprecated
     user_id: int

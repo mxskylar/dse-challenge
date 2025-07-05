@@ -2,9 +2,11 @@ from dataclasses import dataclass
 from enum import Enum
 from mobilize.api_object import ApiObject
 from mobilize.event_campaign import EventCampaign
+from mobilize.event_contact import EventContact
 from mobilize.organization import Organization
 from mobilize.timeslot import Timeslot
 from mobilize.tag import Tag
+from mobilize.utils import generate_uuid_from_obj
 
 
 class EventDataVisibility(Enum):
@@ -29,13 +31,15 @@ class Event(ApiObject):
     https://github.com/mobilizeamerica/api?tab=readme-ov-file#event-object
     """
     def __init__(self, **kwargs):
-        # Contact (most nested data is normalized)
-        contact_args = {}
+        # EventContact
+        event_contact_args = {}
         if "contact" in kwargs and kwargs["contact"]:
-            contact =  kwargs["contact"]
-            contact_args = {f"contact_{key}":value for key, value in contact.items() if key != "owner_user_id"}
-            if "owner_user_id" in contact:
-                contact_args["owner_user_id"] = contact["owner_user_id"]
+            # Generating a UUID because, for some reason, contact.owner_user_id is not unique in data/attendances.json
+            # This UUID will be identical for identical payloads
+            event_contact_uuid = generate_uuid_from_obj(kwargs["contact"])
+            kwargs["contact"]["uuid"] = event_contact_uuid
+            if "id" in kwargs:
+                kwargs["contact"]["event_id"] = kwargs["id"]
         
         # Location (most nested data is normalized)
         location_args = {}
@@ -70,7 +74,7 @@ class Event(ApiObject):
             for tag in kwargs["tags"]:
                 # Enables the event and tag tables to be joined
                 tags.append({**tag, "event_id": kwargs["id"]})
-            timeslot_args = {"timeslots": timeslots}
+            tag_args = {"tags": tags}
         
         # Event Campaign & Sponsor (nested IDs are normalized so they can join to other tables)
         other_args = {}
@@ -81,7 +85,7 @@ class Event(ApiObject):
         
         args = {
             **kwargs,
-            **contact_args,
+            **event_contact_args,
             **location_args,
             **timeslot_args,
             **tag_args,
@@ -97,6 +101,7 @@ class Event(ApiObject):
     # and the event’s organization is coordinated, all but event_type is omitted.
     id: int | None = None
     event_campaign_id: int | None = None
+    sponsor_id: int | None = None
     title: str | None = None
     description: str | None = None
     featured_image_url: str | None = None
@@ -114,10 +119,6 @@ class Event(ApiObject):
     accessbility_notes: str | None = None
     approval_status: EventApprovalStatus | None = None
     instructions: str | None = None
-    contact_name: str | None = None
-    contact_email_adddress: str | None = None
-    contact_phone_number: str | None = None
-    owner_user_id: int | None = None
     venue: str | None = None
     address: str | None = None
     locality: str | None = None
@@ -136,3 +137,4 @@ class Event(ApiObject):
     tags: list[Tag] | None = None
     event_campaign: EventCampaign | None = None
     sponsor: Organization | None = None
+    contact: EventContact | None = None

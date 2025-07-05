@@ -27,7 +27,8 @@ def get_columns_and_dtypes() -> dict[InitialDataFrameName, tuple[list[str], dict
         "timeslots",
         "tags",
         "event_campaign",
-        "sponsor"
+        "sponsor",
+        "contact"
     ]
   }
   # Get column and dtypes for all data frames
@@ -67,6 +68,9 @@ def get_data_frames(attendances: list[Attendance]) -> dict[InitialDataFrameName,
     data[InitialDataFrameName.TIMESLOTS].append(attendance.timeslot)
     # Event
     data[InitialDataFrameName.EVENTS].append(attendance.event)
+    # Event contact
+    if attendance.event.contact:
+      data[InitialDataFrameName.EVENT_CONTACTS].append(attendance.event.contact)
     # Event timeslots
     if attendance.event.timeslots:
       data[InitialDataFrameName.TIMESLOTS] = [

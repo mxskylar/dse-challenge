@@ -4,7 +4,7 @@ import pandas as pd
 
 from data_frame.init import get_data_frames
 from data_frame.initial_data_frame import InitialDataFrameName
-from data_frame.transform_utils import filter_out_null_column
+from data_frame.transform_utils import filter_out_null
 from mobilize.attendance import Attendance
 
 
@@ -23,21 +23,25 @@ def get_tables() -> dict[str, pd.DataFrame]:
   # 2. All remaining timeslots are associated with both an Attendance and an Event,
   #    so duplicate rows need to be dropped.
   raw_timeslots = data_frames[InitialDataFrameName.TIMESLOTS]
-  timeslots = filter_out_null_column(raw_timeslots, "id").drop_duplicates()
+  timeslots = filter_out_null(raw_timeslots, "id").drop_duplicates()
 
   # 1. Filter out events whose id is excluded for campaign finance reasons.
   #    According to the API:
   #    "If the requesting organization is independent and the event’s organization is coordinated, all but event_type is omitted."
   #    https://github.com/mobilizeamerica/api?tab=readme-ov-file#attendance-object
   #    The event_type column was normalized and will be included in the attendances table.
-  # 2. Split events and contacts into separate tables. The same event is returned more than once by the API,
-  #    resulting in a duplicate event for each contact.
-  # 3. The same Event may be associated with multiple attendances, so duplicate rows need to be dropped
-  #    from both the events and contacts data frames.
-  filtered_events = filter_out_null_column(data_frames[InitialDataFrameName.EVENTS], "id")
-  contact_columns = ["contact_name", "contact_email_adddress", "contact_phone_number", "owner_user_id"]
-  event_contacts = filtered_events[[*contact_columns, "id"]].rename(columns={"id": "event_id"}).drop_duplicates()
-  events = filtered_events.drop(columns=contact_columns).drop_duplicates()
+  # 2. The same Event may be associated with multiple attendances, so duplicate rows need to be dropped
+  raw_events = data_frames[InitialDataFrameName.EVENTS]
+  events = filter_out_null(raw_events, "id").drop_duplicates()
+
+  # 1. More than one Contact may be associated with one Event,
+  #    so a separate relational table / flat file must map event_id to event_contact_uuid.
+  #    Split the data frame into two: One data frame for the mapping and another for the remaining columns.
+  # 2. The same Event containing a contact may be associated with multiple attendances,
+  #    so duplicate rows need to be dropped.
+  raw_event_contacts = data_frames[InitialDataFrameName.EVENT_CONTACTS]
+  event_contact_mapping = raw_event_contacts[["event_id", "uuid"]].drop_duplicates().rename(columns={"uuid": "event_contact_uuid"})
+  contacts = raw_event_contacts.drop(columns=["event_id"]).drop_duplicates()
 
   # More than one event may be associated with the same event campaign,
   # so duplicate rows need to be dropped.
@@ -49,7 +53,7 @@ def get_tables() -> dict[str, pd.DataFrame]:
   # 2. Multiple events may be associated with the same Tags,
   #    so duplicate rows need to be dropped.
   raw_tags = data_frames[InitialDataFrameName.TAGS]
-  event_tag_mapping = raw_tags[["event_id", "id"]].rename(columns={"id": "tag_id"})
+  event_tag_mapping = raw_tags[["event_id", "id"]].drop_duplicates().rename(columns={"id": "tag_id"})
   tags = raw_tags.drop(columns=["event_id"]).drop_duplicates()
 
   # More than one attendance or event may be associated with the same sponsor organization,
@@ -66,7 +70,8 @@ def get_tables() -> dict[str, pd.DataFrame]:
     "custom_signup_field_values": data_frames[InitialDataFrameName.CUSTOM_SIGNUP_FIELD_VALUES],
     "timeslots": timeslots,
     "events": events,
-    "event_contacts": event_contacts,
+    "contacts": contacts,
+    "event_contacts": event_contact_mapping,
     "event_campaigns": event_campaigns,
     "event_tags": event_tag_mapping,
     "tags": tags,

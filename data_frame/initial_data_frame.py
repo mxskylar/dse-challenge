@@ -2,6 +2,7 @@ from enum import Enum
 from mobilize.attendance import Attendance
 from mobilize.custom_signup_field_value import CustomSignupFieldValue
 from mobilize.event_campaign import EventCampaign
+from mobilize.event_contact import EventContact
 from mobilize.organization import Organization
 from mobilize.person import Person
 from mobilize.tag import Tag
@@ -17,6 +18,7 @@ class InitialDataFrameName(Enum):
     CUSTOM_SIGNUP_FIELD_VALUES = "custom_signup_field_values"
     TIMESLOTS = "timeslots"
     EVENTS = "events"
+    EVENT_CONTACTS = "event_contacts"
     EVENT_CAMPAIGNS = "event_campaigns"
     TAGS = "tags"
     ORGANIZATIONS = "organizations"
@@ -35,6 +37,8 @@ def get_api_object_class_for_table(df_name: InitialDataFrameName):
             return Timeslot
         case InitialDataFrameName.EVENTS:
             return Event
+        case InitialDataFrameName.EVENT_CONTACTS:
+            return EventContact
         case InitialDataFrameName.EVENT_CAMPAIGNS:
             return EventCampaign
         case InitialDataFrameName.TAGS:
