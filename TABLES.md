@@ -21,7 +21,7 @@ AND event_id = 91154;
 ```sql
 SELECT MAX(num_completed), event_id
 FROM (
-    SELECT COUNT(*), event_id
+    SELECT COUNT(*) AS num_completed, event_id
     FROM attendances
     WHERE attended IS TRUE
     GROUP BY 2
