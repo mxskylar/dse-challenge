@@ -23,7 +23,7 @@ SELECT MAX(num_completed), event_id
 FROM (
     SELECT COUNT(*), event_id
     FROM attendances
-    WHERE status = "CONFIRMED"
+    WHERE attended IS TRUE
     GROUP BY 2
 )
 JOIN events
@@ -33,6 +33,10 @@ ON event_id = events.id;
 ## Tables
 
 ### attendances
+
+Instances of people [attending](https://github.com/mobilizeamerica/api?tab=readme-ov-file#attendance-object) Mobilize events
+
+
 
 ### people
 
