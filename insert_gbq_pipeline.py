@@ -1,4 +1,5 @@
 import json
+import pandas as pd
 
 from google.cloud import bigquery, GbqTimeoutException
 from ingest_mobilize_pipeline import ATTENDANCE_DATA_FILE
@@ -29,11 +30,16 @@ def insert_events(file_path: str, tries: int = 3):
             in EVENT_COLUMNS
         })
     
+    # The same event may be associated with more than one attendance,
+    # so duplicates need to be dropped.
+    df = pd.DataFrame(events).drop_duplicates()
+    rows = df.to_list()
+    
     while tries > 0:
         try:
             client = bigquery.Client()
             table = client.get_table("wfp-data-project.mobilize.events")
-            client.insert_rows(table, events)
+            client.insert_rows(table, rows)
             break
         except GbqTimeoutException as e:
             tries = tries - 1
