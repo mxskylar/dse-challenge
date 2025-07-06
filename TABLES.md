@@ -36,6 +36,23 @@ ON event_id = events.id;
 
 ### people
 
+[People](https://github.com/mobilizeamerica/api?tab=readme-ov-file#person-object) attending Mobilize events
+
+| Column            | Type        | Description                                                                           |
+|-------------------|-------------|---------------------------------------------------------------------------------------|
+| uuid              | string      | Unique value that joins to `attendances.person_uuid`                                  |
+| id                | integer     | ID for person. This is NOT guaranteed to be unique.                                   |
+| user_id           | integer     | The canonical id, moving forward. This is NOT guaranteed to be unique.                |
+| created_date      | integer     | Unix timestamp                                                                        |
+| modified_date     | integer     | Unix timestamp                                                                        |
+| given_name        | string      | First name                                                                            |
+| family_name       | string      | Last name                                                                             |
+| sms_opt_in_status | string enum | Texting opt-in status for the current organization                                    |
+| blocked_date      | integer     | Unix timestamp. Will be null if the person is not blocked by the viewing organization |
+| phone_number      | string      | Phone number                                                                          |
+| postal_code       | str         | Zip code                                                                              |
+| email_address     | string      | Email address                                                                         |
+
 ### custom_signup_field_values
 
 [Custom values](https://github.com/mobilizeamerica/api?tab=readme-ov-file#customsignupfieldvalue) associated with signing up for a Mobilize event.
