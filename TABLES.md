@@ -36,7 +36,28 @@ ON event_id = events.id;
 
 Instances of people [attending](https://github.com/mobilizeamerica/api?tab=readme-ov-file#attendance-object) Mobilize events
 
-
+| Column                 | Type        | Description                                                                                                                                                                                                            |
+|------------------------|-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| id                     | integer     | Nullable value that is unique when non-null. Null when the requesting organization is independent and the event’s organization is coordinated.                                                                         |
+| event_id               | integer     | Joins to `events.id`                                                                                                                                                                                                   |
+| sponsor_id             | integer     | Joins to `organizations.id`                                                                                                                                                                                            |
+| person_uuid            | string      | Joins to `people.uuid`                                                                                                                                                                                                 |
+| created_date           | integer     | Unix timestamp                                                                                                                                                                                                         |
+| modified_date          | integer     | Unix timestamp                                                                                                                                                                                                         |
+| status                 | string enum | Status of cancelled registration, confirmed attendance, or RSVP-ed registration                                                                                                                                        |
+| attended               | boolean     | Whether the person actually attended or not. Will be null if not set.                                                                                                                                                  |
+| event_type             | string      | The type of the event.                                                                                                                                                                                                 |
+| referrer_utm_source    | string      | UTM tracking referrer source                                                                                                                                                                                           |
+| referrer_utm_medium    | string      | UTM tracking referrer medium                                                                                                                                                                                           |
+| referrer_utm_campaign  | string      | UTM tracking referrer campaign                                                                                                                                                                                         |
+| referrer_utm_term      | string      | UTM tracking referrer term                                                                                                                                                                                             |
+| referrer_utm_content   | string      | UTM tracking referrer content                                                                                                                                                                                          |
+| referrer_url           | string      | UTM tracking referrer url                                                                                                                                                                                              |
+| timeslot_start_date    | integer     | Unix timestamp when the timeslot of the event starts                                                                                                                                                                   |
+| timeslot_end_date      | integer     | Unix timestamp when the timeslot of the event ends                                                                                                                                                                     |
+| timeslot_is_full       | boolean     | True if the event's timeslot is full                                                                                                                                                                                   |
+| timeslot_instructions  | string      | Private instructions sent to attendees of this timeslot after signing up. Only exposed for authenticated list organization events requests, for events owned by the authenticated user's organization. null otherwise. |
+| timeslot_max_attendees | integer     | Max number of people who can sign up for this timeslot (a.k.a. capacity). Send null for no maximum.                                                                                                                    |
 
 ### people
 
