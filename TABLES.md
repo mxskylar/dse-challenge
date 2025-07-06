@@ -3,7 +3,9 @@
 The following tables contain data about events managed with the Mobilize platform,
 people who have attended the events, event contacts & sponsors, and more.
 
-These tables can be used to answer questions, such as:
+Table data is exported to CSV files in the `data` directory.
+
+The tables can be used to answer questions, such as:
 
 **How many people RSVP’d to an event with a given ID?**
 
