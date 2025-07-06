@@ -2,7 +2,8 @@ import json
 import requests
 import os
 
-from google.cloud import bigquery
+
+ATTENDANCE_DATA_FILE = "data/attendances.json"
 
 
 def get_mobilize_data(endpoint) -> json[list[dict]]:
@@ -11,43 +12,14 @@ def get_mobilize_data(endpoint) -> json[list[dict]]:
     return requests.get(url, headers=headers).json()
 
 
-def save_data(data: list[dict]) -> str:
-    fp = "data/attendances.json"
-    f = open(filepath, "w")
-
-    json.dump(data, f, indent=4)
-
-
-def load_events(filepath: str):
-    file = open("data/attendances.json", "r")
-    data = file.read()
-
-    for row in data:
-        try:
-            client = bigquery.Client()
-            table = client.get_table("wfp-data-project.mobilize.events")
-            event = {
-                key: value
-                for key, value in row["event"].items()
-                if key
-                in (
-                    "created_date",
-                    "modified_date",
-                    "id",
-                    "title",
-                    "event_type",
-                    "summary",
-                    "description",
-                )
-            }
-            client.insert_rows(table, [event])
-        except:
-            print("error loading row")
+def save_data(data: list[dict], file_path):
+    with open(file_path) as f:
+        json_data = json.dumps(data, f, indent=4)
+        f.write(json_data)
+    print(f"Data saved to: {file_path}")
 
 
-# Only execute if in the main thread
-# This avoids executing if a function is imported into another module
-if __name__ =="__main__":
+if __name__ == "__main__":
     data = get_mobilize_data("attendances")
-    filepath = save_data(data)
-    loadevents(filepath)
+    # Cache attendance data so that it may be inserted offline by another pipeline
+    save_data(data, ATTENDANCE_DATA_FILE)
