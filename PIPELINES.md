@@ -1,6 +1,6 @@
 # Mobilize Event Pipelines
 
-# Ingest Mobilize Events
+## Ingest Mobilize Events
 
 Caches Mobilize event data so that it can later be inserted into GBQ offline.
 
@@ -9,7 +9,7 @@ To run the pipeline:
 python ingest_mobilize_pipeline.py
 ```
 
-# Insert GBQ Pipeline
+## Insert GBQ Pipeline
 
 Inserts cached Mobilize event data into GBQ. Can run offline.
 
