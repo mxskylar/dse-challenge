@@ -1,53 +1,25 @@
+import json
 import requests
-from google.cloud import bigquery
 import os
 
 
-def download_data() -> json[list[dict]]:
-    base_url = "https://api.mobilize.us/v1/"
-    endpoint = "attendances"
-    headers = {"Authorization": "Bearer {}".format(os.environ.get("MOBILIZE_API_KEY"))}
-
-    response = requests.get(base_url + endpoint, headers=headers)
-    result = response.json
-    return result
+ATTENDANCE_DATA_FILE = "data/attendances.json"
 
 
-def save_data(data: list[dict]) -> str:
-    fp = "data/attendances.json"
-    f = open(filepath, "w")
-    import json
-
-    json.dump(data, f, indent=4)
+def get_mobilize_data(endpoint) -> json[list[dict]]:
+    url = f"https://api.mobilize.us/v1/{endpoint}"
+    headers = {"Authorization": f"Bearer {os.environ.get("MOBILIZE_API_KEY")}"}
+    return requests.get(url, headers=headers).json()
 
 
-def load_events(filepath: str):
-    file = open("data/attendances.json", "r")
-    data = file.read()
-
-    for row in data:
-        try:
-            client = bigquery.Client()
-            table = client.get_table("wfp-data-project.mobilize.events")
-            event = {
-                key: value
-                for key, value in row["event"].items()
-                if key
-                in (
-                    "created_date",
-                    "modified_date",
-                    "id",
-                    "title",
-                    "event_type",
-                    "summary",
-                    "description",
-                )
-            }
-            client.insert_rows(table, [event])
-        except:
-            print("error loading row")
+def save_data(data: list[dict], file_path):
+    with open(file_path) as f:
+        json_data = json.dumps(data, f, indent=4)
+        f.write(json_data)
+    print(f"Data saved to: {file_path}")
 
 
-data = download_data()
-filepath = save_data(data)
-loadevents(filepath)
+if __name__ == "__main__":
+    data = get_mobilize_data("attendances")
+    # Cache attendance data so that it may be inserted offline by another pipeline
+    save_data(data, ATTENDANCE_DATA_FILE)
