@@ -1,22 +1,19 @@
+import json
 import requests
-from google.cloud import bigquery
 import os
 
+from google.cloud import bigquery
 
-def download_data() -> json[list[dict]]:
-    base_url = "https://api.mobilize.us/v1/"
-    endpoint = "attendances"
-    headers = {"Authorization": "Bearer {}".format(os.environ.get("MOBILIZE_API_KEY"))}
 
-    response = requests.get(base_url + endpoint, headers=headers)
-    result = response.json
-    return result
+def get_mobilize_data(endpoint) -> json[list[dict]]:
+    url = f"https://api.mobilize.us/v1/{endpoint}"
+    headers = {"Authorization": f"Bearer {os.environ.get("MOBILIZE_API_KEY")}"}
+    return requests.get(url, headers=headers).json()
 
 
 def save_data(data: list[dict]) -> str:
     fp = "data/attendances.json"
     f = open(filepath, "w")
-    import json
 
     json.dump(data, f, indent=4)
 
@@ -51,6 +48,6 @@ def load_events(filepath: str):
 # Only execute if in the main thread
 # This avoids executing if a function is imported into another module
 if __name__ =="__main__":
-    data = download_data()
+    data = get_mobilize_data("attendances")
     filepath = save_data(data)
     loadevents(filepath)
