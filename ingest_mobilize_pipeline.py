@@ -48,6 +48,9 @@ def load_events(filepath: str):
             print("error loading row")
 
 
-data = download_data()
-filepath = save_data(data)
-loadevents(filepath)
+# Only execute if in the main thread
+# This avoids executing if a function is imported into another module
+if __name__ =="__main__":
+    data = download_data()
+    filepath = save_data(data)
+    loadevents(filepath)
