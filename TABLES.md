@@ -48,22 +48,22 @@ ON event_id = events.id;
 
 Map of Mobilize [events](https://github.com/mobilizeamerica/api?tab=readme-ov-file#event-object) to [contacts](https://github.com/mobilizeamerica/api?tab=readme-ov-file#contact)
 
-| Column        | Type    | Description                                                                      |
-|---------------|---------|----------------------------------------------------------------------------------|
-| uuid          | string  | Joins to `event_contacts.event_contact_uuid`                                     |
-| name          | string  | The name of the contact for the event.                                           |
-| phone_number  | string  | The phone number of the contact for the event.                                   |
-| owner_user_id | integer | The user_id of the user who owns the event. This is NOT guaranteed to be unique. |
-| email_address | string  | The email address of the contact for the event.                                  |
+| Column             | Type    | Description              |
+|--------------------|---------|--------------------------|
+| event_id           | integer | Joins to `events.id`     |
+| event_contact_uuid | string  | Joins to `contacts.uuid` |
 
 ### contacts
 
 [Contacts](https://github.com/mobilizeamerica/api?tab=readme-ov-file#contact) for Mobilize events
 
-| Column             | Type    | Description              |
-|--------------------|---------|--------------------------|
-| event_id           | integer | Joins to `events.id`     |
-| event_contact_uuid | string  | Joins to `contacts.uuid` |
+| Column        | Type    | Description                                                                      |
+|---------------|---------|----------------------------------------------------------------------------------|
+| uuid          | string  | Unique value that joins to `event_contacts.event_contact_uuid`                                     |
+| name          | string  | The name of the contact for the event.                                           |
+| phone_number  | string  | The phone number of the contact for the event.                                   |
+| owner_user_id | integer | The user_id of the user who owns the event. This is NOT guaranteed to be unique. |
+| email_address | string  | The email address of the contact for the event.                                  |
 
 ### event_campaigns
 
@@ -71,7 +71,7 @@ Map of Mobilize [events](https://github.com/mobilizeamerica/api?tab=readme-ov-fi
 
 | Column                | Type    | Description                                                              |
 |-----------------------|---------|--------------------------------------------------------------------------|
-| id                    | integer | Joins to `events.event_campaign_id`                                       |
+| id                    | integer | Unique value that joins to `events.event_campaign_id`                                       |
 | slug                  | string  | The public-facing slug of the event campaign.                            |
 | event_create_page_url | string  | The URL of the public-facing event creation page for the event campaign. |
 
@@ -90,5 +90,5 @@ Map of Mobilize [events](https://github.com/mobilizeamerica/api?tab=readme-ov-fi
 
 | Column | Type    | Description                  |
 |--------|---------|------------------------------|
-| id     | integer | Joins to `event_tags.tag_id` |
+| id     | integer | Unique value that joins to `event_tags.tag_id` |
 | name   | string  | Text name of the tag         |
