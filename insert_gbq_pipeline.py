@@ -40,6 +40,7 @@ def insert_events(file_path: str, tries: int = 3):
             client = bigquery.Client()
             table = client.get_table("wfp-data-project.mobilize.events")
             client.insert_rows(table, rows)
+            break
         # Retries up to n times if the insert to GBQ times out
         except RetriableGbqTimeoutException as e:
             tries = tries - 1
