@@ -38,6 +38,16 @@ ON event_id = events.id;
 
 ### custom_signup_field_values
 
+[Custom values](https://github.com/mobilizeamerica/api?tab=readme-ov-file#customsignupfieldvalue) associated with signing up for a Mobilize event.
+
+| Column            | Type    | Description                                                                                             |
+|-------------------|---------|---------------------------------------------------------------------------------------------------------|
+| attendance_id     | integer | Joins to `attendances.id`                                                                               |
+| custom_field_id   | integer | The id of the custom signup field to which the attendee responded. This is NOT guaranteed to be unique. |
+| custom_field_name | string  | The unique name used internally for the custom field                                                    |
+| text_value        | string  | Text value of the attendee's response. Exactly one of text_value and boolean_value will be non-null     |
+| boolean_value     | string  | Boolean value of the attendee's response. Exactly one of text_value and boolean_value will be non-null  |
+
 ### timeslots
 
 [Timeslots](https://github.com/mobilizeamerica/api?tab=readme-ov-file#timeslot) in a Mobilize event
