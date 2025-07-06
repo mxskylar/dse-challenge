@@ -79,7 +79,7 @@ def get_tables() -> dict[str, pd.DataFrame]:
     "people": people
   }
 
-if __name__ =="__main__":
+if __name__ == "__main__":
   data_frames = get_tables()
   for table_name, df in data_frames.items():
     df.to_csv(f"data/{table_name}.csv", index=False, quoting=csv.QUOTE_STRINGS)
