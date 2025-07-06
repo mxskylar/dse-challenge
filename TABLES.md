@@ -40,6 +40,18 @@ ON event_id = events.id;
 
 ### timeslots
 
+[Timeslots](https://github.com/mobilizeamerica/api?tab=readme-ov-file#timeslot) in a Mobilize event
+
+| Column        | Type    | Description                                                                                                                                                                                                            |
+|---------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| id            | integer | Unique value                                                                                                                                                                                                           |
+| event_id      | integer | Joins to `events.id`                                                                                                                                                                                                   |
+| start_date    | integer | Unix timestamp                                                                                                                                                                                                         |
+| end_date      | integer | Unix timestamp                                                                                                                                                                                                         |
+| is_full       | boolean | Whether the timeslot is full                                                                                                                                                                                           |
+| instructions  | string  | Private instructions sent to attendees of this timeslot after signing up. Only exposed for authenticated list organization events requests, for events owned by the authenticated user's organization. null otherwise. |
+| max_attendees | integer | Max number of people who can sign up for this timeslot (a.k.a. capacity). Send null for no maximum.                                                                                                                    |
+
 ### organizations
 
 [Organizations](https://github.com/mobilizeamerica/api?tab=readme-ov-file#organization-object) that sponsor Mobilize events.
