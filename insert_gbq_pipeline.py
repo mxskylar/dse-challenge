@@ -35,6 +35,7 @@ def insert_events(file_path: str, tries: int = 3):
     df = pd.DataFrame(events).drop_duplicates()
     rows = df.to_list()
     
+    # Retries if insert times out
     while tries > 0:
         try:
             client = bigquery.Client()
