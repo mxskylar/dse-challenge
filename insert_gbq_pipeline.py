@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 
-from google.cloud import bigquery, GbqTimeoutException
+from google.cloud import bigquery, RetriableGbqTimeoutException
 from ingest_mobilize_pipeline import ATTENDANCE_DATA_FILE
 
 
@@ -41,7 +41,7 @@ def insert_events(file_path: str, tries: int = 3):
             table = client.get_table("wfp-data-project.mobilize.events")
             client.insert_rows(table, rows)
             break
-        except GbqTimeoutException as e:
+        except RetriableGbqTimeoutException as e:
             tries = tries - 1
             if tries == 0:
                 raise e
