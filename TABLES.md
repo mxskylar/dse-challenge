@@ -42,6 +42,25 @@ ON event_id = events.id;
 
 ### organizations
 
+[Organizations](https://github.com/mobilizeamerica/api?tab=readme-ov-file#organization-object) that sponsor Mobilize events.
+
+| Column              | Type    | Description                                                                                                          |
+|---------------------|---------|----------------------------------------------------------------------------------------------------------------------|
+| id                  | integer | A unique value that joins to `attendances.sponsor_id` & `events.sponsor_id`                                          |
+| name                | string  | The public-facing name of the organization.                                                                          |
+| slug                | string  | The URL-safe string for this organization.                                                                           |
+| is_coordinated      | boolean | Whether this is a coordinated-side organization for campaign finance purposes. Opposite of is_independent            |
+| is_independent      | boolean | Whether this is an independent-side organization for campaign finance purposes. Opposite of is_coordinated           |
+| is_primary_campaign | boolean | If the campaign is a primary. false if not a campaign.                                                               |
+| state               | string  | The two-letter code of the state the organization is in. May be empty.                                               |
+| district            | string  | The district the organization is in, e.g., 14. May refer to different districts depending on the value of race_type. |
+| candidate_name      | string  | The name of the candidate this organization represents. May be empty.                                                |
+| event_feed_url      | string  | The public event feed for this organization.                                                                         |
+| created_date        | integer | Unix timestamp                                                                                                       |
+| modified_date       | integer | Unix timestamp                                                                                                       |
+| org_type            | string  | Type of organization                                                                                                 |
+| race_type           | string  | The type of office the organization's candidate is running for                                                       |
+
 ### events
 
 [Events](https://github.com/mobilizeamerica/api?tab=readme-ov-file#event-object) managed in the Mobilize platform.
